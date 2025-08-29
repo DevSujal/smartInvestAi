@@ -1,12 +1,18 @@
-import express from "express"
-import cors from "cors"
-import dotenv from "dotenv"
-import {GoogleGenerativeAI} from "@google/generative-ai"
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+// __dirname fix for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors());
@@ -18,12 +24,11 @@ if (process.env.GEMINI_API_KEY) {
   gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 }
 
-// Gemini prompt construction (same JSON format as before)
+// Gemini prompt construction
 async function generateAIRecommendation(userInput) {
   const prompt = `As a professional financial advisor, analyze this investment request and provide a comprehensive recommendation in the exact JSON format specified:
 
 User Request: "${userInput}"
-
 Provide your response as a JSON object with this exact structure:
 {
   "portfolio": {
@@ -59,6 +64,7 @@ Provide your response as a JSON object with this exact structure:
 
 Important: Portfolio percentages must sum to 100. Base recommendations on user's age, risk tolerance, time horizon, and investment goals.`;
 
+
   try {
     const model = gemini.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
@@ -68,10 +74,10 @@ Important: Portfolio percentages must sum to 100. Base recommendations on user's
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     } else {
-      throw new Error('Invalid response format from Gemini');
+      throw new Error("Invalid response format from Gemini");
     }
   } catch (error) {
-    console.error('Error generating AI recommendation:', error);
+    console.error("Error generating AI recommendation:", error);
     throw error;
   }
 }
@@ -85,37 +91,39 @@ function generateMockRecommendation() {
       etfs: 10,
       reits: 5,
       crypto: 0,
-      commodities: 0
+      commodities: 0,
     },
     riskScore: 6,
     diversificationScore: 8,
     projections: {
-      '1year': { expected: 8.5, conservative: 5.2, optimistic: 12.8 },
-      '3year': { expected: 22.1, conservative: 15.8, optimistic: 28.9 },
-      '5year': { expected: 41.7, conservative: 28.3, optimistic: 55.2 },
-      '10year': { expected: 95.8, conservative: 68.4, optimistic: 123.7 }
+      "1year": { expected: 8.5, conservative: 5.2, optimistic: 12.8 },
+      "3year": { expected: 22.1, conservative: 15.8, optimistic: 28.9 },
+      "5year": { expected: 41.7, conservative: 28.3, optimistic: 55.2 },
+      "10year": { expected: 95.8, conservative: 68.4, optimistic: 123.7 },
     },
     rationale: {
-      stocks: "High allocation to equities for long-term growth potential suitable for younger investors",
+      stocks:
+        "High allocation to equities for long-term growth potential suitable for younger investors",
       bonds: "Government and corporate bonds provide stability and regular income",
       etfs: "Diversified ETFs offer exposure to multiple sectors with lower fees",
-      reits: "Real Estate Investment Trusts add diversification and inflation protection"
+      reits: "Real Estate Investment Trusts add diversification and inflation protection",
     },
     riskAssessment: {
       volatility: "Moderate to high volatility expected due to equity-heavy allocation",
       timeHorizon: "Well-suited for long-term investment horizons of 5+ years",
       liquidityRisk: "High liquidity with ability to exit positions quickly",
-      inflationRisk: "Good inflation protection through real assets and growth stocks"
-    }
+      inflationRisk: "Good inflation protection through real assets and growth stocks",
+    },
   };
 }
 
-app.post('/api/recommend', async (req, res) => {
+// API routes
+app.post("/api/recommend", async (req, res) => {
   try {
     const { userInput } = req.body;
     if (!userInput || userInput.trim().length < 10) {
       return res.status(400).json({
-        error: 'Please provide a detailed investment request (at least 10 characters)'
+        error: "Please provide a detailed investment request (at least 10 characters)",
       });
     }
 
@@ -126,13 +134,12 @@ app.post('/api/recommend', async (req, res) => {
         recommendation = await generateAIRecommendation(userInput);
         recommendation.isAI = true;
       } catch (error) {
-        // Fallback to mock data
-        console.log('Falling back to mock data due to Gemini error:', error.message);
+        console.log("Falling back to mock data due to Gemini error:", error.message);
         recommendation = generateMockRecommendation();
         recommendation.isAI = false;
       }
     } else {
-      console.log('Using mock data - Gemini API key not provided');
+      console.log("Using mock data - Gemini API key not provided");
       recommendation = generateMockRecommendation();
       recommendation.isAI = false;
     }
@@ -142,27 +149,34 @@ app.post('/api/recommend', async (req, res) => {
 
     res.json({
       success: true,
-      data: recommendation
+      data: recommendation,
     });
-
   } catch (error) {
-    console.error('Error in recommend endpoint:', error);
+    console.error("Error in recommend endpoint:", error);
     res.status(500).json({
-      error: 'Failed to generate recommendation',
-      details: error.message
+      error: "Failed to generate recommendation",
+      details: error.message,
     });
   }
 });
 
-app.get('/api/health', (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({
-    status: 'healthy',
+    status: "healthy",
     timestamp: new Date().toISOString(),
-    aiEnabled: !!gemini
+    aiEnabled: !!gemini,
   });
 });
 
+// ✅ Serve frontend (Vite build output)
+app.use(express.static(path.join(__dirname, "../dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/index.html"));
+});
+
+// Start server
 app.listen(port, () => {
   console.log(`Smart Investment Advisor API running on port ${port}`);
-  console.log(`AI Integration: ${gemini ? 'Enabled (Gemini API)' : 'Disabled (Mock Data)'}`);
+  console.log(`AI Integration: ${gemini ? "Enabled (Gemini API)" : "Disabled (Mock Data)"}`);
 });
