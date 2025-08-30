@@ -1,8 +1,12 @@
 # 🚀 Smart Investment Advisor - AI-Powered Robo-Advisor
 
-A comprehensive fintech application that provides personalized investment recommendations through AI-powered analysis. Built with React, Node.js, and OpenAI GPT-4 integration.
+A comprehensive fintech application that provides personalized investment recommendations through AI-powered analysis. Built with React, Node.js, and Google Gemini AI integration.
 
-![Smart Investment Advisor](https://images.pexels.com/photos/6772076/pexels-photo-6772076.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop)
+## 🌐 Live Demo
+**🔗 [Try the Live Application](https://smartinvestai-01.onrender.com/)**
+
+![Smart Investment Advisor Screenshot](./docs/image.png)
+*Project screenshot - replace with actual application interface*
 
 ## 🌟 Features
 
@@ -11,6 +15,22 @@ A comprehensive fintech application that provides personalized investment recomm
 - **Personalized Analysis**: Get recommendations based on age, risk tolerance, time horizon
 - **Real-time Responses**: Instant portfolio suggestions with detailed explanations
 - **Conversation History**: Track your investment discussions over time
+
+### � Responsive Design
+- **Mobile-First**: Optimized for all device sizes from phones to desktops
+- **Touch-Friendly**: Large interactive elements for mobile devices
+- **Adaptive Layout**: Smart grid systems that adjust to screen sizes
+- **Dark Mode Support**: Seamless light/dark theme switching
+
+### 📊 Professional Data Export
+- **PDF-Ready Reports**: Comprehensive investment analysis reports
+- **JSON Data Export**: Raw portfolio data for external analysis
+- **Professional Formatting**: ASCII art headers and structured layout
+- **Multi-Format Support**: Both .txt and .json file downloads
+- **Portfolio Pie Chart**: Visual breakdown of recommended asset allocation
+- **Growth Projections**: Multi-scenario return forecasts (1, 3, 5, 10 years)
+- **Risk Meter**: Visual gauge showing portfolio risk level (1-10 scale)
+- **Diversification Radar**: Multi-axis analysis of portfolio balance
 
 ### 📊 Interactive Dashboard
 - **Portfolio Pie Chart**: Visual breakdown of recommended asset allocation
@@ -36,16 +56,17 @@ A comprehensive fintech application that provides personalized investment recomm
 
 ### Backend
 - **Node.js** with Express framework
-- **OpenAI GPT-4** integration for AI-powered recommendations
+- **Google Gemini AI** integration for intelligent recommendations
 - **CORS** enabled for cross-origin requests
 - **Express middleware** for JSON parsing and error handling
+- **Environment variables** for secure API key management
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 16+ installed on your system
 - npm or yarn package manager
-- OpenAI API key (optional - app works with mock data)
+- Google Gemini API key (optional - app works with mock data)
 
 ### Installation
 
@@ -58,9 +79,10 @@ A comprehensive fintech application that provides personalized investment recomm
    ```bash
    cp .env.example .env
    ```
-   Add your OpenAI API key to the `.env` file:
+   Add your Google Gemini API key to the `.env` file:
    ```
-   OPENAI_API_KEY=your_openai_api_key_here
+   GEMINI_API_KEY=your_gemini_api_key_here
+   VITE_BACKEND_URL=http://localhost:3001
    PORT=3001
    ```
 
@@ -101,12 +123,21 @@ Try these example inputs with the AI advisor:
 "I have $10,000 for 2 years, need it for a house down payment, can't afford to lose it"
 ```
 
-## 🔧 API Documentation
+## � Performance Optimization
+
+- **Code Splitting**: Lazy loading for dashboard components
+- **Image Optimization**: Optimized hero images from Pexels
+- **Bundle Analysis**: Minimized JavaScript bundle size with Vite
+- **Caching Strategy**: API response caching for repeated queries
+- **Responsive Images**: Adaptive image loading for different screen sizes
+- **Animation Performance**: Hardware-accelerated animations with Framer Motion
+
+## 🔧 API Endpoints
 
 ### POST `/api/recommend`
 Generate investment recommendation based on user input.
 
-**Request Body:**
+**Request:**
 ```json
 {
   "userInput": "I'm 30, want moderate growth for retirement in 35 years"
@@ -122,7 +153,9 @@ Generate investment recommendation based on user input.
       "stocks": 60,
       "bonds": 25,
       "etfs": 10,
-      "crypto": 5
+      "crypto": 5,
+      "reits": 0,
+      "commodities": 0
     },
     "rationale": {
       "stocks": "High allocation to growth stocks leverages your long time horizon...",
@@ -132,17 +165,31 @@ Generate investment recommendation based on user input.
     "diversificationScore": 8,
     "projections": {
       "1year": { "conservative": 3, "expected": 7, "optimistic": 12 },
-      "5year": { "conservative": 25, "expected": 45, "optimistic": 70 }
+      "3year": { "conservative": 15, "expected": 22, "optimistic": 35 },
+      "5year": { "conservative": 25, "expected": 45, "optimistic": 70 },
+      "10year": { "conservative": 60, "expected": 120, "optimistic": 200 }
     },
     "riskAssessment": {
       "marketVolatility": "Moderate portfolio designed for steady growth...",
       "liquidityRisk": "High liquidity with minimal transaction costs...",
       "inflationProtection": "Growth assets historically outpace inflation..."
     },
-    "timestamp": "2024-01-15T10:30:00Z",
+    "timestamp": "2025-08-30T10:30:00Z",
     "userInput": "I'm 30, want moderate growth...",
     "isAI": true
   }
+}
+```
+
+### GET `/api/health`
+Check API status and AI availability.
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-08-30T10:30:00Z",
+  "aiEnabled": true
 }
 ```
 
@@ -182,25 +229,27 @@ Check API status and AI availability.
 ```
 src/
 ├── components/
-│   ├── Header.tsx              # Navigation header
-│   ├── ChatInterface.tsx       # Main chat interface
+│   ├── Header.tsx              # Navigation header with responsive design
+│   ├── ChatInterface.tsx       # Main chat interface with mobile optimization
 │   ├── RecommendationCard.tsx  # AI recommendation display
 │   ├── TypingIndicator.tsx     # Chat typing animation
-│   ├── Dashboard.tsx           # Portfolio dashboard
+│   ├── Dashboard.tsx           # Portfolio dashboard with export features
+│   ├── Toast.tsx               # Notification system for user feedback
 │   └── charts/
 │       ├── PortfolioPieChart.tsx
 │       ├── GrowthProjectionChart.tsx
 │       ├── RiskMeter.tsx
 │       └── DiversificationRadar.tsx
 ├── context/
-│   └── RecommendationContext.tsx # Global state management
+│   ├── RecommendationContext.tsx # Global state management
+│   └── ThemeContext.tsx        # Dark/light theme management
 ├── services/
-│   └── api.ts                  # API communication layer
-├── App.tsx                     # Main app component
+│   └── api.ts                  # API communication layer with error handling
+├── App.tsx                     # Main app component with routing
 └── main.tsx                    # App entry point
 
 server/
-└── index.js                   # Express API server
+└── index.js                   # Express API server with Gemini integration
 ```
 
 ## 🔐 Security & Privacy
@@ -212,17 +261,31 @@ server/
 
 ## 🚀 Deployment
 
-### Frontend (Vercel/Netlify)
+### 🌐 Live Production
+The application is deployed and accessible at:
+**[https://smartinvestai-01.onrender.com/](https://smartinvestai-01.onrender.com/)**
+
+### Frontend Deployment (Vercel/Netlify)
 ```bash
 npm run build
 ```
 Deploy the `dist` folder to your preferred hosting platform.
 
-### Backend (Railway/Render)
+### Backend Deployment (Render/Railway)
 ```bash
 npm run start:server
 ```
-Set environment variables in your hosting platform dashboard.
+Set environment variables in your hosting platform dashboard:
+- `GEMINI_API_KEY`: Your Google Gemini API key
+- `PORT`: Server port (usually auto-set by hosting provider)
+- `NODE_ENV`: Set to `production`
+
+### Environment Variables for Production
+```bash
+GEMINI_API_KEY=your_gemini_api_key_here
+PORT=3001
+NODE_ENV=production
+```
 
 ## 🧪 Testing
 
@@ -231,27 +294,35 @@ Set environment variables in your hosting platform dashboard.
 - [ ] AI recommendations display correctly with charts
 - [ ] Dashboard shows comprehensive portfolio analysis
 - [ ] All charts render and update properly
-- [ ] Responsive design works on mobile devices
+- [ ] Responsive design works on mobile devices (phones, tablets)
 - [ ] Error states display when API is unavailable
+- [ ] Export functionality generates proper reports
+- [ ] Dark/light theme switching works correctly
+- [ ] Toast notifications appear for user actions
 
 ### API Testing
 ```bash
+# Test recommendation endpoint
 curl -X POST http://localhost:3001/api/recommend \
   -H "Content-Type: application/json" \
   -d '{"userInput": "I want aggressive growth for 20 years"}'
+
+# Test health endpoint
+curl http://localhost:3001/api/health
 ```
 
 ## 🤖 AI Integration Notes
 
-### With OpenAI API Key
-- Real-time AI analysis using GPT-4
-- Personalized recommendations based on latest market data
-- Dynamic responses adapting to user context
+### With Google Gemini API Key
+- Real-time AI analysis using Google's Gemini 1.5 Flash model
+- Personalized recommendations based on latest market insights
+- Dynamic responses adapting to user context and risk preferences
+- Advanced natural language processing for investment queries
 
 ### Without API Key
-- Intelligent mock data system
+- Intelligent mock data system with realistic scenarios
 - Pre-configured scenarios for common investment profiles
-- Full functionality demonstration
+- Full functionality demonstration for development and testing
 
 ## 📈 Performance Optimization
 
@@ -267,7 +338,7 @@ curl -X POST http://localhost:3001/api/recommend \
 **Backend not starting:**
 ```bash
 # Check if port 3001 is available
-lsof -i :3001
+netstat -ano | findstr :3001
 # If occupied, change PORT in .env file
 ```
 
@@ -280,7 +351,13 @@ npm install recharts@latest
 **API connection errors:**
 - Verify backend is running on port 3001
 - Check CORS configuration allows frontend origin
-- Confirm network connectivity between services
+- Confirm `VITE_BACKEND_URL` environment variable is set correctly
+- Ensure network connectivity between services
+
+**Gemini API errors:**
+- Verify `GEMINI_API_KEY` is set in environment variables
+- Check API key has proper permissions
+- Monitor API usage limits and quotas
 
 ## 🤝 Contributing
 
@@ -296,10 +373,11 @@ MIT License - see LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- OpenAI for GPT-4 API integration
-- Recharts for beautiful data visualizations
-- Tailwind CSS for responsive design system
-- Framer Motion for smooth animations
+- Google Gemini AI for intelligent investment recommendations
+- Recharts for beautiful and responsive data visualizations
+- Tailwind CSS for comprehensive responsive design system
+- Framer Motion for smooth and performant animations
+- Lucide React for clean and consistent iconography
 
 ---
 
